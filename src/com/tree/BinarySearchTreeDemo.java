@@ -5,6 +5,11 @@ import java.util.Random;
 
 import javax.swing.text.rtf.RTFEditorKit;
 
+/*
+ * 
+ * 2015-06-03
+ * 
+ */
 public class BinarySearchTreeDemo {
 
 	public static void main(String[] args) {
@@ -12,14 +17,12 @@ public class BinarySearchTreeDemo {
 		BinarySearchTree<Integer> bst=new BinarySearchTree<>();
 		Random random=new Random();
 		int x=0;
-		for (int i = 0; i < 10; i++) {
-			int a=random.nextInt(100);
-			if (i==5) {
-				x=a;
-			}
+		int[] array={87,57,93,21,56,30,18,76,39,44};
+		for (int a: array) {
 			System.out.print(a+" ");
 			bst.insert(a);
 		}
+		x=56;
 		System.out.println();
 	//	bst.preOrder();
 	//	System.out.println();
@@ -37,10 +40,14 @@ public class BinarySearchTreeDemo {
         System.out.println("minimum="+node3.key);
         BSNode node4=bst.maximum();
         System.out.println("maximum="+node4.key);
-        BSNode node5=bst.successor(x);
-        System.out.println("bst.successor("+x+").key="+node5.key);
-        BSNode node6=bst.predecessor(x);
-        System.out.println("bst.predecessor("+x+").key="+node6.key);
+//        BSNode node5=bst.successor(x);
+//        System.out.println("bst.successor("+x+").key="+node5.key);
+//        BSNode node6=bst.predecessor(x);
+//        System.out.println("bst.predecessor("+x+").key="+node6.key);
+//        bst.remove(21);
+        bst.preOrder();
+		System.out.println();
+        bst.print();
 	}
 
 }
@@ -51,7 +58,6 @@ class BSNode<T extends Comparable<T>>{
 	BSNode<T> leftNode;//左子节点
 	BSNode<T> rightNode;//右子节点
 	
-	
 	//节点初始化
 	public BSNode(T key,BSNode<T> parentNode,BSNode<T> leftNode,BSNode<T> rightNode){
 		this.key=key;
@@ -59,7 +65,6 @@ class BSNode<T extends Comparable<T>>{
 		this.leftNode=leftNode;
 		this.rightNode=rightNode;
 	}
-	
 	
 	public T getKey(){
 		return key;
@@ -73,14 +78,12 @@ class BSNode<T extends Comparable<T>>{
 
 class BinarySearchTree<T extends Comparable<T>>{
 	
-	
 	private BSNode<T> parentNode;
 	
 	//空二叉树
 	public BinarySearchTree(){
 		parentNode=null;
 	}
-	
 	
 	//前序遍历二叉树
 	private void preOrder(BSNode<T> node){
@@ -295,6 +298,120 @@ class BinarySearchTree<T extends Comparable<T>>{
 	public BSNode<T> predecessor(T key){
 		return predecessor(search(key));
 	}
+	
+	/* 
+	 * 删除结点(z)，并返回被删除的结点
+	 *
+	 * 参数说明：
+	 *     bst 二叉树
+	 *     z 删除的结点
+	 */
+	private BSNode<T> remove(BinarySearchTree<T> bst,BSNode<T> z){
+		BSNode<T> x=null;
+		BSNode<T> y=null;
+        
+		//如果z的左右子树至少有一个为空,则y保存z
+		if ((z.leftNode==null)||(z.rightNode==null)) {
+			y=z;
+		}else {//如果z的左右子树都不为空,则y保存z的直接前驱节点
+			y=successor(z);
+		}
 		
+		//如果y的左子树不等于null,则x保存y的左子树
+		if (y.leftNode!=null) {
+			x=y.leftNode;
+		}else {//如果y的左子树等于null,则x保存y的右子树
+			x=y.rightNode;
+		}
+		
+		//如果x不等于null,则把x的父节点保存y的父节点的值
+		if (x!=null) {
+			x.parentNode=y.parentNode;
+		}
+		
+		//如果y的父节点的值为空,则把x作为该二叉树的根节点
+		if (y.parentNode==null) {
+			bst.parentNode=x;
+		}else if(y==y.parentNode.leftNode){//如果y等于y的父节点的左子树,则把x作为y的父节点的左子树
+			y.parentNode.leftNode=x;
+		}else {//如果y等于y的父节点的右子树,则把x作为y的父节点的右子树
+			y.parentNode.rightNode=x;
+		}
+		
+		//如果y不等于z,则把z的key赋值给y的key
+		if (y!=z) {
+			z.key=y.key;
+		}
+		
+		//返回删除的节点
+        return y;		
+	}
+	
+	/* 
+	 * 删除结点(z)，并返回删除结果  true/false
+	 *
+	 * 参数说明：
+	 *     tree 二叉树的根结点
+	 *     z 删除的结点
+	 */
+	public boolean remove(T key){
+		BSNode<T> z,node;
+		boolean flag=false;
+		z=search(parentNode, key);
+		if (z!=null) {
+			node=remove(this, z);
+			if (node!=null) {
+				node=null;
+				flag=true;
+			}
+		}
+		return flag;
+	}
+	
+	/*
+	 * 打印"二叉查找树"
+	 *
+	 * key        -- 节点的键值 
+	 * direction  --  0，表示该节点是根节点;
+	 *               -1，表示该节点是它的父结点的左孩子;
+	 *                1，表示该节点是它的父结点的右孩子。
+	 */
+	private void print(BSNode<T> tree, T key, int direction) {
+
+	    if(tree != null) {
+
+	        if(direction==0)    // tree是根节点
+	            System.out.printf("%2d is root\n", tree.key);
+	        else                // tree是分支节点
+	            System.out.printf("%2d is %2d's %6s child\n", tree.key, key, direction==1?"right" : "left");
+
+	        print(tree.leftNode, tree.key, -1);
+	        print(tree.rightNode,tree.key,  1);
+	    }
 	}
 
+	public void print() {
+	    if (parentNode != null)
+	        print(parentNode, parentNode.key, 0);
+	}
+	
+	/*
+	 * 销毁二叉树
+	 */
+	private void destroy(BSNode<T> tree) {
+	    if (tree==null)
+	        return ;
+
+	    if (tree.leftNode != null)
+	        destroy(tree.leftNode);
+	    if (tree.rightNode != null)
+	        destroy(tree.rightNode);
+
+	    tree=null;
+	}
+
+	public void clear() {
+	    destroy(parentNode);
+	    parentNode = null;
+	}
+}
