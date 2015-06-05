@@ -12,6 +12,9 @@ public class SingleLink<T> {
 		mCount=0;
 	}
 	
+	public SingleLinkNode<T> getHead(){
+		return mHead;
+	}
 	
 	//获取单链表长度
 	public int size(){
@@ -98,6 +101,11 @@ public class SingleLink<T> {
 	public void insertEnd(SingleLinkNode node){
 		getLast().next=node;
 		mCount++;
+	}
+	
+	public void insertEnd(T key){
+		SingleLinkNode<T> node=new SingleLinkNode<>(key, null);
+        insertEnd(node);
 	}
 }
 
